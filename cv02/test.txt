@@ -1,2 +1,3 @@
 -2 + (245 div 3);  // note
 2 mod 3 * hello
+modasuhdusuus
