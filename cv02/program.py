@@ -70,7 +70,6 @@ def tokenize_input(input_text):
                     tokens.append((token_type, value))
                     line = line[len(value):].lstrip()
                     matched = True
-                    # break
             if not matched:
                 print("Invalid token:", line[0])
                 line = line[1:]
