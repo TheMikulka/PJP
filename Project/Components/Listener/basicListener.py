@@ -26,7 +26,6 @@ class basicListener(GrammarListener):
     
     def getRuleType(self, ctx:ParserRuleContext):
         rule = type(ctx).__name__.replace("Context", "").lower()
-        print("RULE",rule)
         match type(ctx):
             case GrammarParser.IdContext:
                 rule = self.getAllBlocks()[ctx.getText()][0]
@@ -77,6 +76,8 @@ class basicListener(GrammarListener):
                 match operator:
                     case "==":
                         if leftType not in ["int", "float", "string"] or rightType not in ["int", "float", "string"]:
+                            self.errors.append(f"\n\033[1;31mError: == requires int,float,string types, but got {leftType} == {rightType}\033[0m")
+                        if leftType != rightType:
                             self.errors.append(f"\n\033[1;31mError: == requires int,float,string types, but got {leftType} == {rightType}\033[0m")
                     case "!=":
                         if leftType not in ["int", "float", "string"] or rightType not in ["int", "float", "string"]:
@@ -129,10 +130,19 @@ class basicListener(GrammarListener):
         
         declaration_type = block[str(name)][0]
 
+        wasFloat = False
         if valueType != declaration_type:
-            self.errors.append(f"\n\033[1;31mError: \"{name}\" is type {declaration_type}, but got {valueType}\033[0m")
+            if valueType == "int" and declaration_type == "float":
+                valueType = "float"
+                wasFloat = True
+            else:
+                self.errors.append(f"\n\033[1;31mError: \"{name}\" is type {declaration_type}, but got {valueType}\033[0m")
+                return
+        
+        if str(value.getText()).isdecimal():
+            block[str(name)] = (str(declaration_type),float(value.getText()))
         else:
-           block[str(name)] = (str(declaration_type),value.getText())
+            block[str(name)] = (str(declaration_type),value.getText())
     
     def exitDeclaration(self, ctx: GrammarParser.DeclarationContext):
         for i in range(len(ctx.IDENTIFIER())):
