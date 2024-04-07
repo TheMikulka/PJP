@@ -1,0 +1,31 @@
+if (3<4) write "condition was true";
+else write "condition was false";
+
+if (true) {
+	write "inside";
+	write "second";
+	write "if";
+}
+
+int a,b;
+
+a = 100;
+b = 5;
+b = 3;
+
+while(a<10) {
+ write "a=",a;
+ a = 1;
+ a = a + 1;
+}
+
+a=0;
+float c;
+int d;
+
+read b;
+
+while(a<b) {
+ write "a=",a,", b=",b;
+ a = a + 1;
+}
