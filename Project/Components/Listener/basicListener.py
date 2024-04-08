@@ -139,7 +139,7 @@ class basicListener(GrammarListener):
                 self.errors.append(f"\n\033[1;31mError: \"{name}\" is type {declaration_type}, but got {valueType}\033[0m")
                 return
         
-        if str(value.getText()).isdecimal():
+        if str(value.getText()).isdecimal() and declaration_type == "float":
             block[str(name)] = (str(declaration_type),float(value.getText()))
         else:
             block[str(name)] = (str(declaration_type),value.getText())
@@ -171,13 +171,30 @@ class basicListener(GrammarListener):
         if valueType_left != "string" or valueType_right != "string":
             self.errors.append(f"\n\033[1;31mError: String concatenation requires strings type, but got {valueType_left} Dot {valueType_right}\033[0m")
 
+    def exitWhile(self, ctx: GrammarParser.WhileContext):
+        value = ctx.expr()
+        valueType = self.getRuleType(value)
+        if valueType != "bool":
+            self.errors.append(f"\n\033[1;31mError: While requires bool type, but got {valueType}\033[0m")
+    
+    def exitIf(self, ctx: GrammarParser.IfContext):
+        value = ctx.expr()
+        valueType = self.getRuleType(value)
+        if valueType != "bool":
+            self.errors.append(f"\n\033[1;31mError: If requires bool type, but got {valueType}\033[0m")
+    
+    def exitFor(self, ctx: GrammarParser.ForContext):
+        valueType = self.getRuleType(ctx.expr(0))
+        valueType1 = self.getRuleType(ctx.expr(1))
+        valueType2 = self.getRuleType(ctx.expr(2))
+        print(valueType, valueType1, valueType2)
+        if valueType1 != "bool":
+            self.errors.append(f"\n\033[1;31mError: For requires bool type, but got {valueType2}\033[0m")
+
     def exitEveryRule(self, ctx):
         self.getRuleType(ctx)
 
     def exitProgram(self, ctx: GrammarParser.ProgramContext):
-        for key in self.blocks[0]:
-            print(f"{key} = {self.blocks[0][key][1]}")
-
         for error in self.errors:
             print(error)
 

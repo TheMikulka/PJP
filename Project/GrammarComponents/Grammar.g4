@@ -15,6 +15,7 @@ statement
     | if
     | while
     | block
+    | for
     | ';'
     ;
 
@@ -44,6 +45,10 @@ while
 
 block
     : '{' statementList '}'
+    ;
+
+for
+    : 'for' '(' expr ';' expr ';' expr ')' statement
     ;
 
 expr: expr op=(MUL|DIV) expr                # mulDiv

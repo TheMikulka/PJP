@@ -55,3 +55,8 @@ c = "";
 e = true;
 read a,b,c,e;
 write "a,b,c,e: ", a, ",", b, ",", c, ",",e;
+
+for (a = 1; a > 10; a = a+1){
+    write "a,b,c,e: ", a, ",", b, ",", c, ",",e;
+}
+

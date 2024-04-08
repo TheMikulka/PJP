@@ -98,6 +98,15 @@ class GrammarListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by GrammarParser#for.
+    def enterFor(self, ctx:GrammarParser.ForContext):
+        pass
+
+    # Exit a parse tree produced by GrammarParser#for.
+    def exitFor(self, ctx:GrammarParser.ForContext):
+        pass
+
+
     # Enter a parse tree produced by GrammarParser#parens.
     def enterParens(self, ctx:GrammarParser.ParensContext):
         pass
