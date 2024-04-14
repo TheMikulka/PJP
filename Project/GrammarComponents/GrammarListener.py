@@ -80,12 +80,30 @@ class GrammarListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by GrammarParser#else.
+    def enterElse(self, ctx:GrammarParser.ElseContext):
+        pass
+
+    # Exit a parse tree produced by GrammarParser#else.
+    def exitElse(self, ctx:GrammarParser.ElseContext):
+        pass
+
+
     # Enter a parse tree produced by GrammarParser#while.
     def enterWhile(self, ctx:GrammarParser.WhileContext):
         pass
 
     # Exit a parse tree produced by GrammarParser#while.
     def exitWhile(self, ctx:GrammarParser.WhileContext):
+        pass
+
+
+    # Enter a parse tree produced by GrammarParser#basicRPar.
+    def enterBasicRPar(self, ctx:GrammarParser.BasicRParContext):
+        pass
+
+    # Exit a parse tree produced by GrammarParser#basicRPar.
+    def exitBasicRPar(self, ctx:GrammarParser.BasicRParContext):
         pass
 
 

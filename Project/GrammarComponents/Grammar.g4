@@ -32,15 +32,23 @@ readStmt
     ;
 
 writeStmt
-    : 'write' STRING (',' expr)* ';'                             
+    : 'write' expr (',' expr)* ';'                             
     ;
 
 if
-    : 'if' '(' expr ')' statement ('else' statement)?        
+    : 'if' '(' expr basicRPar statement (else)?        
+    ;
+
+else
+    : 'else' statement
     ;
 
 while
-    : 'while' '(' expr ')' statement
+    : 'while' '(' expr basicRPar statement
+    ;
+
+basicRPar
+    : ')'
     ;
 
 block
@@ -112,8 +120,8 @@ NOT : '!' ;
 AND : '&&' ;
 OR : '||' ;
 
-FLOAT : '-'? [0-9]+'.'[0-9]+ ;
-INT : ('-'? [0-9]+) ;
+FLOAT : [0-9]+'.'[0-9]+ ;
+INT : ([0-9]+) ;
 BOOL : 'true' | 'false' ;
 STRING : '"' (~["])* '"' ;
 

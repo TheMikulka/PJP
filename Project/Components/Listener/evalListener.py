@@ -4,7 +4,7 @@ from GrammarComponents.GrammarLexer import GrammarLexer
 from GrammarComponents.GrammarParser import GrammarParser
 from GrammarComponents.GrammarListener import GrammarListener
 
-class basicListener(GrammarListener):
+class evalListener(GrammarListener):
     def __init__(self):
         self.values = {}
         self.blocks = [{}]
@@ -194,10 +194,11 @@ class basicListener(GrammarListener):
     def exitEveryRule(self, ctx):
         self.getRuleType(ctx)
 
-    def exitProgram(self, ctx: GrammarParser.ProgramContext):
+    def exitProgram(self, ctx: GrammarParser.ProgramContext):                
         for error in self.errors:
             print(error)
 
         if len(self.errors) > 0:
             exit(1)
+
 
