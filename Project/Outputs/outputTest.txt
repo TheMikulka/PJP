@@ -1,0 +1,24 @@
+push I 1
+itof
+push F 2.2
+lt F
+pop
+push S "a"
+push S "b"
+eq S
+pop
+push I 1
+itof
+push I 2
+itof
+push F 3.3
+mul F
+add F
+pop
+push I 1
+push I 2
+add I
+itof
+push F 3.3
+mul F
+pop

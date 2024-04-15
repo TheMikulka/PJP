@@ -30,7 +30,7 @@ def main(argv):
     else:
         exit(1)
     
-    listener2 = stackCompileListener("./Outputs/output3.txt")
+    listener2 = stackCompileListener("./Outputs/outputTest.txt")
     walker2 = ParseTreeWalker()
     walker2.walk(listener2, tree)
 

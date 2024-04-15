@@ -10,6 +10,7 @@ class stackCompileListener(GrammarListener):
         self.blocks = [{}]
         self.__clear_file()
         self.needConvertIntToFloat = False
+        self.ignoreConvertIntToFloat = False
         self.index = 0
 
     def write_to_file(self, text):
@@ -26,6 +27,18 @@ class stackCompileListener(GrammarListener):
             for key in block:
                 blocks[key] = block[key]
         return blocks
+    
+    def matchWithTypes(self, ctx_t):
+        match ctx_t:
+            case "int":
+                return "I"
+            case "float":
+                return "F"
+            case "string":
+                return "S"
+            case "bool":
+                return "B"
+
     
     def enterBlock(self, ctx: GrammarParser.BlockContext):
         self.blocks.append({})
@@ -59,7 +72,19 @@ class stackCompileListener(GrammarListener):
             case GrammarParser.OrContext:
                 rule = "bool"
             case GrammarParser.RelationalContext:
-                rule = "bool"
+                left = self.getRuleType(ctx.expr(0))
+                right = self.getRuleType(ctx.expr(1))
+
+                if left == "float" and right == "float":
+                    rule = "float"
+                if left == "int" and right == "float" or left == "float" and right == "int":
+                    rule = "float"
+                if left == "int" and right == "int":
+                    rule = "int"
+                if left == "string" and right == "string":
+                    rule = "string"
+                if left == "bool" and right == "bool":
+                    rule = "bool"
             case GrammarParser.ParensContext:
                 rule = self.getRuleType(ctx.expr())
         return rule
@@ -69,7 +94,7 @@ class stackCompileListener(GrammarListener):
         
     def exitInt(self, ctx:GrammarParser.IntContext):
         self.write_to_file(f"push I {ctx.getText()}")
-        if self.needConvertIntToFloat:
+        if self.needConvertIntToFloat and not self.ignoreConvertIntToFloat:
             self.write_to_file(f"itof")
             self.needConvertIntToFloat = False
 
@@ -123,9 +148,9 @@ class stackCompileListener(GrammarListener):
 
     def exitMulDiv(self, ctx: GrammarParser.MulDivContext):
         if(ctx.op.text == "*"):
-            self.write_to_file(f"mul")
+            self.write_to_file(f"mul {self.matchWithTypes(self.getRuleType(ctx))}")
         else:
-            self.write_to_file(f"div")
+            self.write_to_file(f"div {self.matchWithTypes(self.getRuleType(ctx))}")
 
     def enterAddSub(self, ctx: GrammarParser.AddSubContext):
         left = self.getRuleType(ctx.expr(0))
@@ -135,10 +160,13 @@ class stackCompileListener(GrammarListener):
             self.needConvertIntToFloat = True
 
     def exitAddSub(self, ctx: GrammarParser.AddSubContext):
+        ctx_t = self.getRuleType(ctx)
+        
         if(ctx.op.text == "+"):
-            self.write_to_file(f"add")
+            self.write_to_file(f"add {self.matchWithTypes(ctx_t)}")
         else:
-            self.write_to_file(f"sub")
+            self.write_to_file(f"sub {self.matchWithTypes(ctx_t)}")
+
 
     def exitMod(self, ctx: GrammarParser.ModContext):
         self.write_to_file(f"mod")
@@ -151,9 +179,16 @@ class stackCompileListener(GrammarListener):
 
     def exitOr(self, ctx: GrammarParser.OrContext):
         self.write_to_file(f"or")
-
-    def enterIf(self, ctx: GrammarParser.IfContext):
-        pass
+    
+    def enterParens(self, ctx: GrammarParser.ParensContext):
+        if self.getRuleType(ctx.expr()) == "int":
+            self.ignoreConvertIntToFloat = True
+        
+    def exitParens(self, ctx: GrammarParser.ParensContext):
+        if self.ignoreConvertIntToFloat and self.needConvertIntToFloat:
+            self.write_to_file(f"itof")
+            self.needConvertIntToFloat = False
+            self.ignoreConvertIntToFloat = False
 
     def enterRelational(self, ctx: GrammarParser.RelationalContext):
         left = self.getRuleType(ctx.expr(0))
@@ -195,19 +230,23 @@ class stackCompileListener(GrammarListener):
         self.write_to_file(f"label {self.index}")
         self.index += 1
     
-
+    def enterRelational(self, ctx: GrammarParser.RelationalContext):
+        left = self.getRuleType(ctx.expr(0))
+        right = self.getRuleType(ctx.expr(1))
+        if(left == "int" and right == "float") or (left == "float" and right == "int"):
+           self.needConvertIntToFloat = True
 
     def exitRelational(self, ctx: GrammarParser.RelationalContext):
         if(ctx.op.getText() == "<"):
-            self.write_to_file(f"lt")
-        elif(ctx.op.getText() == "<="):
-            self.write_to_file(f"le")
+            self.write_to_file(f"lt {self.matchWithTypes(self.getRuleType(ctx))}")
+        # elif(ctx.op.getText() == "<="):
+        #     self.write_to_file(f"le")
         elif(ctx.op.getText() == ">"):
-            self.write_to_file(f"gt")
-        elif(ctx.op.getText() == ">="):
-            self.write_to_file(f"ge")
+            self.write_to_file(f"gt {self.matchWithTypes(self.getRuleType(ctx))}")
+        # elif(ctx.op.getText() == ">="):
+        #     self.write_to_file(f"ge")
         elif(ctx.op.getText() == "=="):
-            self.write_to_file(f"eq")
+            self.write_to_file(f"eq {self.matchWithTypes(self.getRuleType(ctx))}")
         elif(ctx.op.getText() == "!="):
             self.write_to_file(f"eq")
             self.write_to_file(f"not")
@@ -247,5 +286,9 @@ class stackCompileListener(GrammarListener):
 
         self.write_to_file(f"load {name.getText()}")
 
-        if ctx.parentCtx.getChild(0) == ctx: 
-            self.write_to_file(f"pop")
+        # if ctx.parentCtx.getChild(0) == ctx: 
+        #     self.write_to_file(f"pop")
+
+    def exitPrintExpr(self, ctx: GrammarParser.PrintExprContext):
+        self.write_to_file(f"pop")
+    

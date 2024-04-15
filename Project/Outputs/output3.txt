@@ -34,7 +34,7 @@ load a
 print 2
 load a
 push I 1
-add
+add I
 save a
 load a
 pop
@@ -58,7 +58,7 @@ load b
 print 4
 load a
 push I 1
-add
+add I
 save a
 load a
 pop
